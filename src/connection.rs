@@ -26,7 +26,7 @@ pub struct WebRtcChannels {
     /// Outgoing data to send through the DataChannel.
     pub data_tx: mpsc::UnboundedSender<Vec<u8>>,
     /// Connection state events from the async task.
-    pub event_rx: mpsc::UnboundedReceiver<WebRtcEvent>,
+    pub(crate) event_rx: mpsc::UnboundedReceiver<WebRtcEvent>,
 }
 
 /// Holds a shared slot where the async WebRTC task will deposit
@@ -116,10 +116,10 @@ pub(crate) async fn wait_for_ice_gathering(pc: &web_sys::RtcPeerConnection) -> R
     let cb = Closure::<dyn FnMut()>::new({
         let pc = pc.clone();
         move || {
-            if pc.ice_gathering_state() == web_sys::RtcIceGatheringState::Complete {
-                if let Some(tx) = tx.lock().unwrap().take() {
-                    let _ = tx.send(());
-                }
+            if pc.ice_gathering_state() == web_sys::RtcIceGatheringState::Complete
+                && let Some(tx) = tx.lock().unwrap().take()
+            {
+                let _ = tx.send(());
             }
         }
     });
