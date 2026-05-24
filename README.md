@@ -120,3 +120,9 @@ The host is authoritative over ball physics and sends ball position to the clien
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT License](LICENSE-MIT) at your option.
+
+## Disclaimer
+
+This is mostly fun weekend project for me to learn about WebRTC, this is not really indended to be production ready transport solution. 
+That said, if you find this useful or want to contribute, please open an issue or PR, I will try to respond when I have time.
+
