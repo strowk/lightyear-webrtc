@@ -806,7 +806,7 @@ dependencies = [
 
 [[package]]
 name = "lightyear_webrtc"
-version = "0.26.4"
+version = "0.0.1"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
