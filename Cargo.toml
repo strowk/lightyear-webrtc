@@ -5,7 +5,7 @@ edition = "2024"
 rust-version = "1.88"
 license = "MIT OR Apache-2.0"
 description = "WebRTC transport for lightyear (browser-only via web-sys)"
-repository = "https://github.com/cBournhonesque/lightyear"
+repository = "https://github.com/strowk/lightyear-webrtc"
 
 [lints.rust]
 dead_code = "allow"
