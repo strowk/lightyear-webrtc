@@ -1,0 +1,73 @@
+[package]
+name = "lightyear_webrtc"
+version = "0.26.4"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+description = "WebRTC transport for lightyear (browser-only via web-sys)"
+repository = "https://github.com/cBournhonesque/lightyear"
+
+[lints.rust]
+dead_code = "allow"
+unused_variables = "allow"
+
+[lints.clippy]
+type_complexity = "allow"
+missing_transmute_annotations = "allow"
+len_without_is_empty = "allow"
+too_many_arguments = "allow"
+module_inception = "allow"
+alloc_instead_of_core = "warn"
+std_instead_of_alloc = "warn"
+std_instead_of_core = "warn"
+
+[package.metadata.docs.rs]
+all-features = true
+rustflags = ["--cfg=web_sys_unstable_apis"]
+targets = ["wasm32-unknown-unknown"]
+
+[features]
+default = []
+client = []
+server = []
+
+[dependencies]
+lightyear_core = { version = "0.26.4", default-features = false }
+lightyear_link = { version = "0.26.4", default-features = false }
+
+tracing = "0.1.40"
+thiserror = "2.0.3"
+bytes = { version = "1.8", default-features = false, features = ["serde"] }
+
+# bevy
+bevy_app = { version = "0.18", default-features = false }
+bevy_ecs = { version = "0.18", default-features = false, features = ["std"] }
+
+# WASM / WebRTC
+getrandom_03 = { version = "0.3", features = ["wasm_js"], package = "getrandom" }
+getrandom = { version = "0.4", features = ["wasm_js"] }
+wasm-bindgen = "0.2.106"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3.83"
+futures-channel = "0.3"
+futures-core = "0.3"
+
+[dependencies.web-sys]
+version = "0.3.83"
+features = [
+  "RtcPeerConnection",
+  "RtcConfiguration",
+  "RtcIceServer",
+  "RtcDataChannel",
+  "RtcDataChannelInit",
+  "RtcDataChannelType",
+  "RtcDataChannelEvent",
+  "RtcSessionDescription",
+  "RtcSessionDescriptionInit",
+  "RtcSdpType",
+  "RtcIceConnectionState",
+  "RtcIceGatheringState",
+  "RtcPeerConnectionIceEvent",
+  "RtcIceCandidate",
+  "MessageEvent",
+]
