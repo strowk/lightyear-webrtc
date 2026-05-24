@@ -27,7 +27,7 @@ Neither feature is enabled by default. Enable what you need:
 
 ```toml
 [dependencies]
-lightyear_webrtc = { version = "0.26", features = ["client", "server"] }
+lightyear_webrtc = { version = "0.0.2", features = ["client", "server"] }
 ```
 
 ## Quick start
