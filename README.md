@@ -2,6 +2,8 @@
 
 Browser-only WebRTC transport for [lightyear](https://github.com/cBournhonesque/lightyear), built on `web-sys`.
 
+https://github.com/user-attachments/assets/77cc416a-bc46-44e9-a073-7ffedd9ad3cf
+
 Provides peer-to-peer data channels between two browser tabs using the standard WebRTC offer/answer flow. One peer acts as the **host** (creates the data channel) and the other as the **client** (receives it). 
 Both sides are full WASM applications — there is no native server involved, except for STUN (and optional TURN) for NAT traversal.
 
