@@ -161,3 +161,28 @@ fn on_server_linked(
         ));
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn plugin_builds_without_panic() {
+        let mut app = bevy_app::App::new();
+        app.add_plugins(WebRtcPlugin);
+    }
+
+    #[cfg(feature = "client")]
+    #[test]
+    fn client_plugin_builds_without_panic() {
+        let mut app = bevy_app::App::new();
+        app.add_plugins(crate::client::WebRtcClientPlugin);
+    }
+
+    #[cfg(feature = "server")]
+    #[test]
+    fn server_plugin_builds_without_panic() {
+        let mut app = bevy_app::App::new();
+        app.add_plugins(crate::server::WebRtcServerPlugin);
+    }
+}
