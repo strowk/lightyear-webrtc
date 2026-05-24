@@ -1,0 +1,39 @@
+[package]
+name = "webrtc_pong"
+version = "0.26.4"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+lightyear_webrtc = { path = "../..", features = ["client", "server"] }
+lightyear_link = { version = "0.26.4", default-features = false }
+
+bevy = { version = "0.18", default-features = false, features = [
+  "2d",
+  "bevy_winit",
+  "bevy_window",
+  "webgl2",
+] }
+
+# WASM
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+  "Window", "Location", "Document", "Element", "HtmlElement", "HtmlTextAreaElement",
+  "EventTarget", "Node", "Navigator", "Clipboard",
+] }
+futures-channel = "0.3"
+js-sys = "0.3"
+base64 = "0.22"
+
+[package.metadata.bevy_cli.web]
+rustflags = ["--cfg", "getrandom_backend=\"wasm_js\"", "--cfg", "web_sys_unstable_apis"]
+default-features = false
+
+[lints.rust]
+dead_code = "allow"
+unused_variables = "allow"
+
+[lints.clippy]
+type_complexity = "allow"
