@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 lightyear_webrtc = { path = "../..", features = ["client", "server"] }
 lightyear_link = { version = "0.26.4", default-features = false }
+bytes = "1.8"
 
 bevy = { version = "0.18", default-features = false, features = [
   "2d",

@@ -3188,7 +3188,7 @@ dependencies = [
 
 [[package]]
 name = "lightyear_webrtc"
-version = "0.26.4"
+version = "0.0.1"
 dependencies = [
  "bevy_app",
  "bevy_ecs",
@@ -5248,6 +5248,7 @@ version = "0.26.4"
 dependencies = [
  "base64",
  "bevy",
+ "bytes",
  "futures-channel",
  "js-sys",
  "lightyear_link",

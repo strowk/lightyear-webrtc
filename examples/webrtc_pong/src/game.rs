@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use lightyear_link::Linked;
-use lightyear_webrtc::connection::WebRtcChannels;
+use bytes::Bytes;
+use lightyear_link::{Link, Linked};
 
 use crate::{NetworkEntity, NetworkRole};
 
@@ -184,10 +184,10 @@ pub(crate) fn send_state(
     net_entity: Option<Res<NetworkEntity>>,
     paddle_query: Query<&Transform, With<LocalPaddle>>,
     ball_query: Query<&Transform, With<Ball>>,
-    link_query: Query<&WebRtcChannels, With<Linked>>,
+    mut link_query: Query<&mut Link, With<Linked>>,
 ) {
     let Some(net_entity) = net_entity else { return };
-    let Ok(channels) = link_query.get(net_entity.0) else {
+    let Ok(mut link) = link_query.get_mut(net_entity.0) else {
         return;
     };
 
@@ -196,7 +196,7 @@ pub(crate) fn send_state(
         let y = transform.translation.y;
         let mut msg = vec![0u8];
         msg.extend_from_slice(&y.to_le_bytes());
-        let _ = channels.data_tx.unbounded_send(msg);
+        link.send.push(Bytes::from(msg));
     }
 
     // Host also sends ball position (tag 1)
@@ -205,7 +205,7 @@ pub(crate) fn send_state(
             let mut msg = vec![1u8];
             msg.extend_from_slice(&transform.translation.x.to_le_bytes());
             msg.extend_from_slice(&transform.translation.y.to_le_bytes());
-            let _ = channels.data_tx.unbounded_send(msg);
+            link.send.push(Bytes::from(msg));
         }
     }
 }
@@ -213,33 +213,19 @@ pub(crate) fn send_state(
 pub(crate) fn receive_state(
     role: Res<NetworkRole>,
     net_entity: Option<Res<NetworkEntity>>,
-    mut channels_query: Query<
-        (&mut WebRtcChannels, Option<&mut lightyear_link::Link>),
-        With<Linked>,
-    >,
+    mut link_query: Query<&mut Link, With<Linked>>,
     mut paddle_query: Query<&mut Transform, (With<RemotePaddle>, Without<Ball>)>,
     mut ball_query: Query<&mut Transform, (With<Ball>, Without<RemotePaddle>)>,
 ) {
     let Some(net_entity) = net_entity else { return };
-    let Ok((mut channels, link)) = channels_query.get_mut(net_entity.0) else {
+    let Ok(mut link) = link_query.get_mut(net_entity.0) else {
         return;
     };
-
-    let mut messages: Vec<Vec<u8>> = Vec::new();
-
-    if let Some(mut link) = link {
-        for payload in link.recv.drain() {
-            messages.push(payload.to_vec());
-        }
-    }
-    while let Ok(data) = channels.data_rx.try_recv() {
-        messages.push(data.to_vec());
-    }
 
     let mut latest_paddle_y = None;
     let mut latest_ball_pos = None;
 
-    for msg in messages {
+    for msg in link.recv.drain() {
         if msg.is_empty() {
             continue;
         }

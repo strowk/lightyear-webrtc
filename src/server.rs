@@ -3,7 +3,7 @@ use alloc::string::ToString;
 use alloc::sync::Arc;
 use bevy_app::{App, Plugin};
 use bevy_ecs::prelude::*;
-use lightyear_link::{LinkPlugin, LinkStart, Linked, Linking};
+use lightyear_link::{Link, LinkPlugin, LinkStart, Linked, Linking};
 use lightyear_link::server::{Server, ServerLinkPlugin};
 use tracing::{error, info};
 
@@ -21,7 +21,7 @@ pub struct WebRtcServerPlugin;
 /// Spawn an entity with this component and trigger `LinkStart` to begin
 /// the WebRTC connection setup as a host.
 #[derive(Component)]
-#[require(Server)]
+#[require(Server, Link)]
 pub struct WebRtcServerIo {
     pub ice_config: IceConfig,
     pub signaling: Option<Box<dyn SignalingClient>>,
