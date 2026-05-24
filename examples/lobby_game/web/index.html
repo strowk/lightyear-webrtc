@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Lobby Game - lightyear_webrtc signaling example</title>
+    <style>
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0a0a14; }
+        canvas { width: 100vw !important; height: 100vh !important; display: block; }
+        #room-code {
+            position: fixed; top: 10px; left: 10px; z-index: 9999;
+            background: rgba(34, 34, 34, 0.9); color: #4fc3f7;
+            padding: 8px 14px; border-radius: 6px;
+            font-family: monospace; font-size: 14px;
+        }
+        .landing {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; color: #eee;
+            font-family: -apple-system, system-ui, sans-serif;
+            padding: 20px; box-sizing: border-box;
+        }
+        .landing h1 { font-size: 28px; margin: 0 0 8px; }
+        .landing .subtitle { color: #aaa; font-size: 14px; margin-bottom: 30px; }
+        .landing .steps {
+            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 12px;
+            padding: 24px 28px; max-width: 520px; width: 100%;
+        }
+        .landing .steps h2 { margin: 0 0 16px; font-size: 16px; color: #fff; }
+        .landing .step { margin-bottom: 12px; font-size: 14px; line-height: 1.5; color: #ccc; }
+        .landing code {
+            background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;
+            font-family: monospace; font-size: 13px;
+        }
+        .landing a { color: #4fc3f7; text-decoration: none; }
+        .landing a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <script>
+        const params = window.location.search;
+        const isGame = params.includes("host") || params.includes("code") || params.includes("room_id");
+    </script>
+
+    <template id="game-ui">
+        <div id="room-code"></div>
+        <canvas id="bevy-canvas"></canvas>
+    </template>
+
+    <template id="landing-ui">
+        <div class="landing">
+            <h1>Lobby Game</h1>
+            <div class="subtitle">WebSocket signaling + WebRTC example for lightyear_webrtc</div>
+
+            <div class="steps">
+                <h2>Host a game</h2>
+                <div class="step">
+                    <input id="host-name" type="text" placeholder="Room name" value="My Room"
+                        style="padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1a1a2e; color:#eee; font-size:14px; width:160px;" />
+                    <label style="margin-left:10px; font-size:13px; color:#aaa;">
+                        <input id="host-public" type="checkbox" checked /> Public
+                    </label>
+                    <input id="host-password" type="text" placeholder="Password (optional)"
+                        style="margin-left:10px; padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1a1a2e; color:#eee; font-size:14px; width:140px;" />
+                    <button id="host-btn"
+                        style="margin-left:10px; padding:6px 14px; border-radius:4px; border:none; background:#4fc3f7; color:#000; font-weight:600; cursor:pointer;">
+                        Host
+                    </button>
+                </div>
+            </div>
+
+            <div class="steps" style="margin-top:20px;">
+                <h2>Join by code</h2>
+                <div class="step">
+                    <input id="join-code" type="text" placeholder="Room code (e.g. X4K9NP)"
+                        style="padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1a1a2e; color:#eee; font-size:14px; width:160px; text-transform:uppercase;" />
+                    <input id="join-password" type="text" placeholder="Password (if needed)"
+                        style="margin-left:10px; padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1a1a2e; color:#eee; font-size:14px; width:140px;" />
+                    <button id="join-btn"
+                        style="margin-left:10px; padding:6px 14px; border-radius:4px; border:none; background:#4fc3f7; color:#000; font-weight:600; cursor:pointer;">
+                        Join
+                    </button>
+                </div>
+            </div>
+
+            <div class="steps" style="margin-top:20px;">
+                <h2>Public rooms</h2>
+                <div class="step">
+                    <input id="search-input" type="text" placeholder="Search..."
+                        style="padding:6px 10px; border-radius:4px; border:1px solid #555; background:#1a1a2e; color:#eee; font-size:14px; width:200px;" />
+                    <button id="refresh-btn"
+                        style="margin-left:10px; padding:6px 14px; border-radius:4px; border:none; background:#333; color:#eee; cursor:pointer;">
+                        Refresh
+                    </button>
+                </div>
+                <div id="room-list" style="margin-top:12px; font-size:13px; color:#aaa;">Loading...</div>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        const SIGNALING_URL = "http://127.0.0.1:3536";
+
+        if (isGame) {
+            document.body.appendChild(document.getElementById("game-ui").content.cloneNode(true));
+            const { default: init } = await import("./lobby_game.js");
+            init().catch((error) => {
+                if (!error.message.startsWith("Using exceptions for control flow")) {
+                    console.error(error);
+                }
+            });
+        } else {
+            document.body.appendChild(document.getElementById("landing-ui").content.cloneNode(true));
+
+            // Host button
+            document.getElementById("host-btn").addEventListener("click", () => {
+                const name = document.getElementById("host-name").value || "My Room";
+                const pub_ = document.getElementById("host-public").checked;
+                const pw = document.getElementById("host-password").value;
+                let url = `?host&name=${encodeURIComponent(name)}`;
+                if (!pub_) url += "&public=false";
+                if (pw) url += `&password=${encodeURIComponent(pw)}`;
+                window.location.search = url;
+            });
+
+            // Join by code button
+            document.getElementById("join-btn").addEventListener("click", () => {
+                const code = document.getElementById("join-code").value.trim().toUpperCase();
+                const pw = document.getElementById("join-password").value;
+                if (!code) { alert("Enter a room code"); return; }
+                let url = `?code=${encodeURIComponent(code)}`;
+                if (pw) url += `&password=${encodeURIComponent(pw)}`;
+                window.location.search = url;
+            });
+
+            // Room list
+            async function fetchRooms() {
+                const search = document.getElementById("search-input").value.trim();
+                const listEl = document.getElementById("room-list");
+                try {
+                    const query = search ? `?search=${encodeURIComponent(search)}` : "";
+                    const res = await fetch(`${SIGNALING_URL}/rooms${query}`);
+                    const rooms = await res.json();
+                    if (rooms.length === 0) {
+                        listEl.innerHTML = "<em>No public rooms available</em>";
+                        return;
+                    }
+                    listEl.innerHTML = rooms.map(r => {
+                        const lock = r.has_password ? " (password)" : "";
+                        return `<div style="margin-bottom:8px;">
+                            <a href="?room_id=${r.id}" style="color:#4fc3f7;">${r.name}</a>${lock}
+                        </div>`;
+                    }).join("");
+                } catch (e) {
+                    listEl.innerHTML = "<em style='color:#f77;'>Cannot reach signaling server</em>";
+                }
+            }
+
+            document.getElementById("refresh-btn").addEventListener("click", fetchRooms);
+            document.getElementById("search-input").addEventListener("keydown", (e) => {
+                if (e.key === "Enter") fetchRooms();
+            });
+            fetchRooms();
+        }
+    </script>
+</body>
+</html>

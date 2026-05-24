@@ -1,0 +1,43 @@
+[package]
+name = "lobby_game"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+lightyear_webrtc = { path = "../..", features = ["client", "server"] }
+lightyear_link = { version = "0.26.4", default-features = false }
+bytes = "1.8"
+
+bevy = { version = "0.18", default-features = false, features = [
+  "2d",
+  "bevy_winit",
+  "bevy_window",
+  "webgl2",
+] }
+
+# WASM
+wasm-bindgen = "=0.2.121"
+wasm-bindgen-futures = "=0.4.71"
+web-sys = { version = "=0.3.98", features = [
+  "Window", "Location", "Document", "Element", "HtmlElement",
+  "HtmlInputElement", "HtmlButtonElement", "EventTarget", "Node",
+  "WebSocket", "MessageEvent", "CloseEvent", "BinaryType", "ErrorEvent",
+] }
+futures-channel = "0.3"
+js-sys = "=0.3.98"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[package.metadata.bevy_cli.web]
+rustflags = ["--cfg", "getrandom_backend=\"wasm_js\"", "--cfg", "web_sys_unstable_apis"]
+default-features = false
+
+[lints.rust]
+dead_code = "allow"
+unused_variables = "allow"
+
+[lints.clippy]
+type_complexity = "allow"
