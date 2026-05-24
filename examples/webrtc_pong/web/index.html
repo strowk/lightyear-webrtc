@@ -2,29 +2,133 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>WebRTC Pong - Lightyear</title>
+    <title>lightyear_webrtc - Browser WebRTC transport for Lightyear</title>
     <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #0a0014; }
         canvas { width: 100vw !important; height: 100vh !important; display: block; }
-        .info {
+        .header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            background: rgba(10, 0, 20, 0.9); backdrop-filter: blur(6px);
+            border-bottom: 1px solid #333;
+            padding: 10px 20px;
+            font-family: -apple-system, system-ui, sans-serif; font-size: 14px; color: #eee;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .header h1 { margin: 0; font-size: 16px; font-weight: 600; color: #fff; }
+        .header p { margin: 0; color: #aaa; font-size: 13px; flex: 1; }
+        .header a { color: #4fc3f7; text-decoration: none; }
+        .header a:hover { text-decoration: underline; }
+        .header .links { display: flex; gap: 12px; font-size: 13px; }
+        .footer {
             position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
             color: #ccc; font-family: monospace; text-align: center; z-index: 10; font-size: 13px;
         }
-        .info a { color: #4fc3f7; }
+        .footer a { color: #4fc3f7; text-decoration: none; }
+
+        .landing {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; color: #eee;
+            font-family: -apple-system, system-ui, sans-serif;
+            padding: 20px; box-sizing: border-box;
+        }
+        .landing h1 { font-size: 32px; margin: 0 0 8px; }
+        .landing .subtitle { color: #aaa; font-size: 15px; margin-bottom: 40px; }
+        .landing .subtitle a { color: #4fc3f7; text-decoration: none; }
+        .landing .steps {
+            background: rgba(255,255,255,0.05); border: 1px solid #333; border-radius: 12px;
+            padding: 28px 32px; max-width: 480px; width: 100%;
+        }
+        .landing .steps h2 { margin: 0 0 20px; font-size: 18px; color: #fff; }
+        .landing .step {
+            display: flex; gap: 14px; margin-bottom: 16px; font-size: 14px; line-height: 1.5;
+        }
+        .landing .step:last-child { margin-bottom: 0; }
+        .landing .step-num {
+            flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+            background: #4fc3f7; color: #000; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .landing .step-text { color: #ccc; }
+        .landing .step-text a { color: #4fc3f7; text-decoration: none; font-weight: 600; }
+        .landing .step-text a:hover { text-decoration: underline; }
+        .landing .step-text code {
+            background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;
+            font-family: monospace; font-size: 13px;
+        }
+        .landing .repo {
+            margin-top: 24px; font-size: 13px; color: #888; text-align: center;
+        }
+        .landing .repo a { color: #4fc3f7; text-decoration: none; }
     </style>
 </head>
 <body>
-    <canvas id="bevy-canvas"></canvas>
-    <div class="info">
-        <a href="?host">Host</a> | <a href="?client">Client</a> | Arrow keys to move
-    </div>
+    <script>
+        const params = window.location.search;
+        const isGame = params.includes("host") || params.includes("client");
+    </script>
+
+    <template id="game-ui">
+        <div class="header">
+            <h1>lightyear_webrtc</h1>
+            <p>Browser-only <a href="https://github.com/strowk/lightyear-webrtc">WebRTC transport</a> for <a href="https://github.com/cBournhonesque/lightyear">Lightyear</a>. This is a live demo of peer-to-peer Pong over WebRTC data channels.</p>
+            <div class="links">
+                <a href="https://github.com/strowk/lightyear-webrtc">GitHub</a>
+                <a href="https://docs.rs/lightyear_webrtc">Docs</a>
+            </div>
+        </div>
+        <canvas id="bevy-canvas"></canvas>
+        <div class="footer">
+            <a href="?host">Host</a> | <a href="?client">Client</a> | Arrow keys to move
+        </div>
+    </template>
+
+    <template id="landing-ui">
+        <div class="landing">
+            <h1>lightyear_webrtc</h1>
+            <div class="subtitle">Browser-only WebRTC transport for <a href="https://github.com/cBournhonesque/lightyear">Lightyear</a></div>
+            <div class="steps">
+                <h2>Try the live demo</h2>
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-text">Open <a href="?host" target="_blank">this page as Host</a> in one browser tab</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-text">Open <a href="?client" target="_blank">this page as Client</a> in another tab</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-text">Copy the <code>OFFER</code> from the host tab and paste it into the client tab</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">4</div>
+                    <div class="step-text">Copy the <code>ANSWER</code> from the client tab and paste it back into the host tab</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">5</div>
+                    <div class="step-text">Play Pong with arrow keys</div>
+                </div>
+            </div>
+            <div class="repo">
+                <a href="https://github.com/strowk/lightyear-webrtc">GitHub</a> &middot;
+                <a href="https://docs.rs/lightyear_webrtc">Docs</a> &middot;
+                <a href="https://crates.io/crates/lightyear_webrtc">crates.io</a>
+            </div>
+        </div>
+    </template>
+
     <script type="module">
-        import init from "./webrtc_pong.js";
-        init().catch((error) => {
-            if (!error.message.startsWith("Using exceptions for control flow")) {
-                console.error(error);
-            }
-        });
+        if (isGame) {
+            document.body.appendChild(document.getElementById("game-ui").content.cloneNode(true));
+            const { default: init } = await import("./webrtc_pong.js");
+            init().catch((error) => {
+                if (!error.message.startsWith("Using exceptions for control flow")) {
+                    console.error(error);
+                }
+            });
+        } else {
+            document.body.appendChild(document.getElementById("landing-ui").content.cloneNode(true));
+        }
     </script>
 </body>
 </html>

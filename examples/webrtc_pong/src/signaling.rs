@@ -110,7 +110,7 @@ impl ManualSignaling {
         let div = doc.create_element("div").unwrap();
         div.set_id("signaling-ui");
         let _ = div.set_attribute("style",
-            "position:fixed;top:10px;left:10px;z-index:9999;background:#222;color:#eee;\
+            "position:fixed;top:60px;left:10px;z-index:9999;background:#222;color:#eee;\
              padding:12px;border-radius:8px;max-width:500px;font-family:monospace;font-size:13px");
         doc.body().unwrap().append_child(&div).unwrap();
         div
